@@ -12,27 +12,30 @@ def rng_color() -> str:
     hex = compose(rcurry(format)('x'),randrange)(0, int(2 ** 24 - 1), 1)
     return f'#{hex}'
 
-def block2corners(l: str) -> dict[str,tuple[int,int]]:
+def block2corners(l: str, mod_type = "SOFT") -> dict[str,tuple[int,int]]:
     idx = l.split(' ',1)[0]
-    crn = compose( sorted
-                 , eval
-                 , lambda c: f'[{c}]'
-                 , partial(re.sub,r'\)\s\(','),(')
-                 ,''.join
-                 , list
-                 , curry(dropwhile)(curry(operator.ne)('('))
-                 )(l.split(' ',1)[1])
-    xmin_,ymin_ = crn[0]
-    xmax_,ymax_ = crn[-1]
-    w   = xmax_ - xmin_
-    h   = ymax_ - ymin_
-    return {idx: {'width': w, 'height': h}}
+    if (mod_type == "HARD"):
+        crn = compose( sorted
+                    , eval
+                    , lambda c: f'[{c}]'
+                    , partial(re.sub,r'\)\s\(','),(')
+                    ,''.join
+                    , list
+                    , curry(dropwhile)(curry(operator.ne)('('))
+                    )(l.split(' ',1)[1])
+        xmin_,ymin_ = crn[0]
+        xmax_,ymax_ = crn[-1]
+        w   = xmax_ - xmin_
+        h   = ymax_ - ymin_
+        return {idx: {'width': w, 'height': h}}
+    else: 
+        return {idx:{'ratio': l.split(' ')[3]}}
 
-def read_blocks(block_file: str) -> dict[str,dict[str,int]]:
+def read_blocks(block_file: str, mod_type = "SOFT") -> dict[str,dict[str,int]]:
     with open(block_file) as b:
         block_size = reduce( operator.or_
                            , compose( list
-                                     , curry(map)(block2corners)
+                                     , curry(map)(lambda l: block2corners(l, mod_type))
                                      , curry(map)(curry(dropright)(1))
                                      , curry(takewhile)(curry(operator.ne)('\n'))
                                      , curry(drop)(1),curry(dropwhile)(curry(operator.ne)('\n'))
@@ -85,7 +88,7 @@ def connections(bid: str, cons: list[set[str]]):
 
 def read_gsrc(base: str, name: str, mode: str):
     path      = f'{base}/{mode}/{name}'
-    blocks    = read_blocks(path + '.blocks')
+    blocks    = read_blocks(path + '.blocks', base)
     place     = read_place(path + '.pl')
     nets      = read_nets(path + '.nets')
     block_ids = set(blocks.keys())
