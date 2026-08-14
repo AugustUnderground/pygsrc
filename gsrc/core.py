@@ -40,7 +40,7 @@ def read_blocks(block_file: str, mod_type = "SOFT") -> dict[str,dict[str,int]]:
                                      , curry(takewhile)(curry(operator.ne)('\n'))
                                      , curry(drop)(1),curry(dropwhile)(curry(operator.ne)('\n'))
                                      , curry(drop)(1),curry(dropwhile)(curry(operator.ne)('\n'))
-                                     )(b.readlines()))
+                                     )(b.readlines()), {})
     return block_size
 
 def block2place(l: str) -> dict[str,tuple[int,int]]:
@@ -54,7 +54,7 @@ def read_place(pl_file: str) -> dict[str,dict[str,int]]:
                                            , curry(map)(curry(dropright)(1))
                                            , curry(takewhile)(curry(operator.ne)('\n'))
                                            , curry(drop)(1),curry(dropwhile)(curry(operator.ne)('\n'))
-                                           )(p.readlines()))
+                                           )(p.readlines()), {})
     return block_place
 
 def nets2conns(netlist: list[str], nets: list[set[str]]) -> list[set[str]]:
@@ -84,7 +84,7 @@ def read_nets(net_file: str) -> list[set[str]]:
 def connections(bid: str, cons: list[set[str]]):
     return compose( dict, Counter
                   )(reduce( operator.add
-                          , [list(c - {bid}) for c in cons if bid in c] ) )
+                          , [list(c - {bid}) for c in cons if bid in c], [] ))
 
 def read_gsrc(base: str, name: str, mode: str):
     path      = f'{base}/{mode}/{name}'

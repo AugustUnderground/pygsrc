@@ -1,8 +1,8 @@
 from gsrc import read_gsrc
 
-base = 'data/gsrc'
-mode = 'SOFT'
-name = 'n10'
+base = './resources/gsrc'
+mode = 'HARD'
+name = 'n100'
 
 data = read_gsrc(base,name,mode)
 
